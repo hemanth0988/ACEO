@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sidebar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600&display=swap');
+
+        .sidebar {
+            background-color: #011b57;
+            color: white;
+            width: 250px;
+            transition: width 0.3s;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+        .sidebar.collapsed {
+            width: 60px;
+        }
+        .sidebar.collapsed .menu-text,
+        .sidebar.collapsed .dropdown-arrow {
+            display: none;
+        }
+        .sidebar .menu {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            margin-top: 20px;
+        }
+        .sidebar .menu a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 10px 10px 15px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+            transition: background-color 0.3s;
+            border-radius: 12px;
+            margin: 5px 10px;
+        }
+        .sidebar .menu a:not(.menu-toggle):hover {
+            background-color: #1a2e4f;
+        }
+        .sidebar .menu a i {
+            min-width: 24px;
+            margin-right: 10px;
+        }
+        .menu-toggle {
+            margin-left: 6px;
+        }
+        .dropdown-menu {
+            display: none;
+            flex-direction: column;
+            padding-left: 30px;
+        }
+        .dropdown-menu a {
+            padding: 5px 0;
+        }
+        .show {
+            display: flex;
+        }
+        .dropdown-arrow {
+            position: absolute;
+            right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="menu">
+            <a href="dashboard.html" class="menu-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </a>
+            <a href="dashboard.html">
+                <i class="fas fa-tachometer-alt"></i>
+                <span class="menu-text">Dashboard</span>
+            </a>
+            <a href="pettycash.html">
+                <i class="fas fa-wallet"></i>
+                <span class="menu-text">Petty Cash</span>
+            </a>
+            <a href="projects.html">
+                <i class="fas fa-project-diagram"></i>
+                <span class="menu-text">Projects</span>
+            </a>
+            <a href="#" onclick="toggleDropdown(event)">
+                <i class="fas fa-folder"></i>
+                <span class="menu-text">Documents</span>
+                <i class="fas fa-chevron-down dropdown-arrow"></i>
+            </a>
+            <div class="dropdown-menu">
+                <a href="companydocs.html"><i class="fas fa-building"></i> <span class="menu-text">Company Docs</span></a>
+                <a href="employeedocs.html"><i class="fas fa-id-badge"></i> <span class="menu-text">Employee Docs</span></a>
+                <a href="subcontractordocs.html"><i class="fas fa-people-carry"></i> <span class="menu-text">Subcontractor Docs</span></a>
+            </div>
+            <a href="permits.html">
+                <i class="fas fa-file-signature"></i>
+                <span class="menu-text">Permits</span>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('collapsed');
+        }
+
+        function toggleDropdown(event) {
+            event.preventDefault();
+            const parent = event.target.closest('a');
+            const dropdownMenu = parent.nextElementSibling;
+            const dropdownArrow = parent.querySelector('.dropdown-arrow');
+            if (dropdownMenu) {
+                dropdownMenu.classList.toggle('show');
+                if (dropdownArrow) {
+                    dropdownArrow.classList.toggle('fa-chevron-down');
+                    dropdownArrow.classList.toggle('fa-chevron-up');
+                }
+            }
+        }
+    </script>
+</body>
+</html>
