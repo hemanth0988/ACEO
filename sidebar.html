@@ -13,6 +13,7 @@
             transition: background-color 0.3s, color 0.3s;
             margin: 0;
             padding: 0;
+            display: flex;
         }
         .sidebar {
             background-color: #01265D;
@@ -222,7 +223,7 @@
                 <span class="menu-text">Petty Cash</span>
             </a>
             <a href="projects.html">
-                <i class="fas fa-clipboard-list"></i> <!-- New icon for projects -->
+                <i class="fas fa-clipboard-list"></i>
                 <span class="menu-text">Projects</span>
             </a>
             <a href="#" class="documents" onclick="toggleDropdown(event)">
@@ -233,7 +234,7 @@
             <div class="dropdown-menu">
                 <a href="companydocs.html"><i class="fas fa-building"></i> <span class="menu-text">Company Docs</span></a>
                 <a href="employeedocs.html"><i class="fas fa-id-badge"></i> <span class="menu-text">Employee Docs</span></a>
-                <a href="subcontractordocs.html"><i class="fas fa-handshake"></i> <span class="menu-text">Subcontractor Docs</span></a> <!-- New icon for subcontractor documents -->
+                <a href="subcontractordocs.html"><i class="fas fa-handshake"></i> <span class="menu-text">Subcontractor Docs</span></a>
             </div>
             <a href="permits.html">
                 <i class="fas fa-file-signature"></i>
@@ -264,6 +265,7 @@
                     text.style.opacity = '0';
                 });
             }
+            adjustMainContentWidth();
         }
 
         function toggleDropdown(event) {
@@ -279,6 +281,14 @@
                 }
             }
         }
+
+        function adjustMainContentWidth() {
+            const sidebarWidth = document.querySelector('.sidebar').offsetWidth;
+            document.querySelector('.main-content').style.marginLeft = `${sidebarWidth}px`;
+        }
+
+        window.addEventListener('resize', adjustMainContentWidth);
+        document.addEventListener('DOMContentLoaded', adjustMainContentWidth);
 
         const darkModeToggle = document.getElementById('dark-mode-toggle');
         darkModeToggle.addEventListener('change', () => {
