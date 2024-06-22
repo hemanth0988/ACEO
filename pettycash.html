@@ -419,68 +419,9 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <script src="include-sidebar.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const sidebarContainer = document.getElementById('sidebar');
-            const xhr = new XMLHttpRequest();
-            xhr.open('GET', 'sidebar.html', true);
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    sidebarContainer.innerHTML = xhr.responseText;
-
-                    // Add the script from the sidebar.html content
-                    const script = document.createElement('script');
-                    script.innerHTML = `
-                        function toggleSidebar() {
-                            const sidebar = document.querySelector('.sidebar');
-                            sidebar.classList.toggle('collapsed');
-                            sidebar.classList.toggle('expanded');
-                            const texts = document.querySelectorAll('.menu-text, .dropdown-arrow, .toggle-label');
-                            if (sidebar.classList.contains('expanded')) {
-                                texts.forEach(text => {
-                                    text.style.opacity = '1';
-                                });
-                            } else {
-                                texts.forEach(text => {
-                                    text.style.opacity = '0';
-                                });
-                            }
-                            adjustMainContentWidth();
-                        }
-
-                        function toggleDropdown(event) {
-                            event.preventDefault();
-                            const parent = event.target.closest('a');
-                            const dropdownMenu = parent.nextElementSibling;
-                            const dropdownArrow = parent.querySelector('.dropdown-arrow');
-                            if (dropdownMenu && !document.querySelector('.sidebar').classList.contains('collapsed')) {
-                                dropdownMenu.classList.toggle('show');
-                                if (dropdownArrow) {
-                                    dropdownArrow.classList.toggle('fa-chevron-down');
-                                    dropdownArrow.classList.toggle('fa-chevron-up');
-                                }
-                            }
-                        }
-
-                        function adjustMainContentWidth() {
-                            const sidebarWidth = document.querySelector('.sidebar').offsetWidth;
-                            document.querySelector('.main-content').style.marginLeft = \`\${sidebarWidth}px\`;
-                        }
-
-                        window.addEventListener('resize', adjustMainContentWidth);
-                        document.addEventListener('DOMContentLoaded', adjustMainContentWidth);
-
-                        const darkModeToggle = document.getElementById('dark-mode-toggle');
-                        darkModeToggle.addEventListener('change', () => {
-                            document.body.classList.toggle('dark-mode', darkModeToggle.checked);
-                            document.body.classList.toggle('light-mode', !darkModeToggle.checked);
-                        });
-                    `;
-                    document.body.appendChild(script);
-                }
-            };
-            xhr.send();
-
             // Initialize Select2 for the project name dropdown
             $('#projectName').select2({
                 placeholder: 'Select Project Name & Number',
@@ -499,13 +440,13 @@
                         const formattedDate = item.entryDate.split('-').reverse().join('/'); // Format the date
                         const row = document.createElement('tr');
                         row.innerHTML = `
-                            <td class="centered">\${formattedDate}</td>
-                            <td class="centered">\${item.requestNumber}</td>
-                            <td class="centered">\${item.projectName}</td>
-                            <td class="centered">\${item.projectType}</td>
-                            <td class="centered">\${item.category}</td>
-                            <td class="centered">\${item.amount}</td>
-                            <td class="centered"><button class="details-button" onclick="showDetails('\${item.details}', '\${item.attachment}')"><i class="fas fa-eye"></i></button></td>
+                            <td class="centered">${formattedDate}</td>
+                            <td class="centered">${item.requestNumber}</td>
+                            <td class="centered">${item.projectName}</td>
+                            <td class="centered">${item.projectType}</td>
+                            <td class="centered">${item.category}</td>
+                            <td class="centered">${item.amount}</td>
+                            <td class="centered"><button class="details-button" onclick="showDetails('${item.details}', '${item.attachment}')"><i class="fas fa-eye"></i></button></td>
                         `;
                         tableBody.appendChild(row);
                     });
@@ -569,7 +510,7 @@
             const detailsImg = document.getElementById('details-img');
             const downloadButton = document.getElementById('download-button');
             if (attachment) {
-                const filePath = \`/uploads/\${attachment}\`;
+                const filePath = `/uploads/${attachment}`;
                 detailsImg.src = filePath;
                 detailsImg.style.display = 'block';
                 downloadButton.href = filePath;
