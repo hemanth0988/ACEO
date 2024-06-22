@@ -1,1 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petty Cash List</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600&display=swap');
 
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+        .sidebar {
+            background-color: #01265D;
+            color: white;
+            width: 60px;
+            transition: width 0.3s, background-color 0.3s;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            position: fixed;
+            overflow: hidden;
+        }
+        .sidebar.expanded {
+            width: 250px;
+        }
+        .sidebar .menu {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            margin-top: 20px;
+        }
+        .sidebar .menu a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 10px 10px 15px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+            transition: background-color 0.3s, color 0.3s;
+            border-radius: 12px;
+            margin: 5px 10px;
+        }
+        .sidebar .menu a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #F3C619;
+        }
+        .sidebar .menu a:hover i {
+            color: #F3C619;
+        }
+        .sidebar .menu .menu-toggle {
+            margin-left: 6px;
+        }
+        .sidebar .menu .menu-toggle:hover {
+            background-color: transparent;
+        }
+        .sidebar .menu .menu-toggle i {
+            color: white;
+        }
+        body.dark-mode .sidebar .menu .menu-toggle i {
+            color: #F3C619;
+        }
+        .sidebar .menu a i {
+            min-width: 24px;
+            margin-right: 10px;
+        }
+        .dropdown-menu {
+            display: none;
+            flex-direction: column;
+            padding-left: 30px;
+        }
+        .dropdown-menu a {
+            padding: 5px 0;
+        }
+        .show {
+            display: flex;
+        }
+        .dropdown-arrow {
+            position: absolute;
+            right: 10px;
+        }
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            margin: 10px;
+            cursor: pointer;
+            justify-content: space-between;
+            color: #F3C619;
+        }
+        .toggle-container input[type="checkbox"] {
+            display: none;
+        }
+        .toggle-container .toggle-label {
+            margin-right: 10px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #4CAF50;
+        }
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+        .sidebar.collapsed .toggle-container {
+            display: none;
+        }
+        .sidebar.collapsed .menu-text,
+        .sidebar.collapsed .dropdown-arrow {
+            display: none;
+        }
+        .sidebar.collapsed .documents {
+            pointer-events: none;
+        }
+        .sidebar.collapsed .menu a.documents:hover::after {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #F3C619;
+        }
+        .sidebar.expanded .menu-text,
+        .sidebar.expanded .dropdown-arrow,
+        .sidebar.expanded .toggle-label {
+            opacity: 1;
+        }
+        .sidebar .menu-text,
+        .sidebar .dropdown-arrow,
+        .sidebar .toggle-label {
+            transition: opacity 0.3s;
+        }
+        body.light-mode {
+            background-color: white;
+            color: #464646;
+        }
+        body.light-mode .sidebar .menu a.active {
+            color: #F3C619;
+        }
+        body.light-mode .btn {
+            background-color: #F3C619;
+            color: #01265D;
+        }
+        body.dark-mode {
+            background-color: #1E1E1E;
+            color: white;
+        }
+        body.dark-mode .sidebar {
+            background-color: #000A20;
+        }
+        body.dark-mode .sidebar .menu a {
+            color: white;
+        }
+        body.dark-mode .sidebar .menu a:hover,
+        body.dark-mode .sidebar .menu a.active {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #F3C619;
+        }
+        body.dark-mode .sidebar .menu a:hover i,
+        body.dark-mode .sidebar .menu a.active i {
+            color: #F3C619;
+        }
+        body.dark-mode .sidebar .menu .menu-toggle:hover {
+            background-color: transparent;
+        }
+        body.dark-mode .main-content {
+            color: white;
+        }
+        body.dark-mode .btn {
+            background-color: #F3C619;
+            color: #01265D;
+        }
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            margin-left: 60px; /* Ensure this matches the sidebar's collapsed width */
+            transition: margin-left 0.3s;
+        }
+        .sidebar.expanded ~ .main-content {
+            margin-left: 250px; /* Ensure this matches the sidebar's expanded width */
+        }
+        h1 {
+            text-align: left;
+            color: #333;
+            margin-left: 20px; /* Adjust this value to align with your table */
+        }
+        .add-new {
+            background-color: #ffc107;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            float: right;
+            margin-bottom: 20px;
+            margin-right: 20px;
+        }
+        table {
+            width: calc(100% - 40px);
+            margin: 20px;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            color: #333;
+            text-align: center;
+        }
+        td.centered {
+            text-align: center;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .details-button {
+            background-color: #ffc107;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .overlay-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            position: relative;
+            width: 70%;
+            height: 70%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .overlay-content h2 {
+            margin-top: 0;
+            text-align: center;
+            font-family: inherit;
+        }
+        .overlay-content .details-text {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            overflow: hidden;
+            margin-bottom: 20px;
+            width: 100%;
+            font-family: inherit;
+        }
+        .overlay-content .details-text-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            overflow-y: auto;
+            padding-right: 20px; /* Add padding to give space between fields and the scrollbar */
+        }
+        .overlay-content .details-text-container::-webkit-scrollbar {
+            width: 4px;
+        }
+        .overlay-content .details-text-container::-webkit-scrollbar-thumb {
+            background-color: grey;
+            border-radius: 10px;
+        }
+        .overlay-content .details-text-container::-webkit-scrollbar-track {
+            background-color: #f9f9f9;
+        }
+        .overlay-content .details-text p {
+            margin: 0;
+        }
+        .overlay-content .details-img-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+        }
+        .details-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        .download-button {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background-color: #ffc107;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        /* Form styles */
+        .form-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            overflow-y: auto;
+            padding-right: 20px;
+            padding-left: 20px;
+        }
+        .form-content .form-row {
+            display: flex;
+            gap: 10px;
+            justify-content: space-between;
+        }
+        .form-content .form-row .custom-field {
+            width: 48%;
+        }
+        .form-content input,
+        .form-content select,
+        .form-content textarea {
+            margin-bottom: 10px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 100%;
+            box-sizing: border-box;
+            font-size: 14px;
+            font-family: inherit;
+            height: 38px; /* Ensures consistent height */
+            color: #6c757d; /* Default grey color */
+        }
+        .form-content input:focus,
+        .form-content input:not(:placeholder-shown),
+        .form-content select:focus,
+        .form-content select:not([value=""]),
+        .form-content textarea:focus,
+        .form-content textarea:not(:placeholder-shown),
+        .form-content select option {
+            color: black; /* Turns text to black when input is given */
+        }
+        .form-content .select2-container--default .select2-selection--single {
+            height: 38px; /* Ensures consistent height */
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 14px;
+            font-family: inherit;
+            color: #6c757d; /* Default grey color */
+        }
+        .form-content .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 20px; /* Adjusts vertical alignment */
+            color: #6c757d; /* Default grey color */
+        }
+        .form-content .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 38px; /* Ensures consistent height */
+        }
+        .form-content .select2-container--default .select2-selection--single .select2-selection__rendered.select2-selection__placeholder {
+            color: #6c757d; /* Default grey color for placeholder */
+        }
+        .form-content .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: black; /* Turns text to black when a project is selected */
+        }
+        .form-content textarea {
+            resize: none;
+            height: 100px; /* Specific height for textarea */
+        }
+        .form-content button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            background-color: #ffc107;
+            color: white;
+            align-self: center;
+            margin-top: 15px;
+            font-size: 16px;
+            font-family: inherit;
+        }
+        .form-content input[type="file"] {
+            display: none;
+        }
+        .form-content label[for="attachment"] {
+            display: inline-block;
+            padding: 7.5px 15px; /* Reduced size by 25% */
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            background-color: #011b57;
+            color: white;
+            font-size: 12px;
+            font-family: inherit;
+            text-align: center;
+        }
+        .form-content label[for="attachment"]:hover {
+            background-color: #0a2c74;
+        }
+        .file-name {
+            display: inline-block;
+            margin-left: 10px;
+            font-size: 14px;
+            color: #333;
+        }
+        .remove-file {
+            display: none;
+            margin-left: 10px;
+            color: red;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .custom-field {
+            margin-bottom: 10px;
+        }
+        /* Custom scrollbar styles */
+        .form-content::-webkit-scrollbar {
+            width: 4px;
+        }
+        .form-content::-webkit-scrollbar-thumb {
+            background-color: grey;
+            border-radius: 10px;
+        }
+        .form-content::-webkit-scrollbar-track {
+            background-color: #f9f9f9;
+        }
+        /* Specific style to change the default color of the select category */
+        #category {
+            color: #6c757d; /* Default grey color */
+        }
+        #category option {
+            color: black; /* Change to black on selection */
+        }
+    </style>
+</head>
+<body class="light-mode">
+    <div class="sidebar collapsed">
+        <div class="menu">
+            <a href="#" class="menu-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </a>
+            <a href="index.html">
+                <i class="fas fa-tachometer-alt"></i>
+                <span class="menu-text">Dashboard</span>
+            </a>
+            <a href="pettycash.html">
+                <i class="fas fa-wallet"></i>
+                <span class="menu-text">Petty Cash</span>
+            </a>
+            <a href="projects.html">
+                <i class="fas fa-clipboard-list"></i>
+                <span class="menu-text">Projects</span>
+            </a>
+            <a href="#" class="documents" onclick="toggleDropdown(event)">
+                <i class="fas fa-folder"></i>
+                <span class="menu-text">Documents</span>
+                <i class="fas fa-chevron-down dropdown-arrow"></i>
+            </a>
+            <div class="dropdown-menu">
+                <a href="companydocs.html"><i class="fas fa-building"></i> <span class="menu-text">Company Docs</span></a>
+                <a href="employeedocs.html"><i class="fas fa-id-badge"></i> <span class="menu-text">Employee Docs</span></a>
+                <a href="subcontractordocs.html"><i class="fas fa-handshake"></i> <span class="menu-text">Subcontractor Docs</span></a>
+            </div>
+            <a href="permits.html">
+                <i class="fas fa-file-signature"></i>
+                <span class="menu-text">Permits</span>
+            </a>
+        </div>
+        <div class="toggle-container">
+            <span class="toggle-label">Dark Mode</span>
+            <label class="toggle-switch">
+                <input type="checkbox" id="dark-mode-toggle">
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <h1>Petty Cash List</h1>
+        <button class="add-new" onclick="showFormOverlay()">+ Add New</button>
+        <table id="data-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Req. no.</th>
+                    <th>Project name & no.</th>
+                    <th>Project Type</th>
+                    <th>Category</th>
+                    <th>Amount</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data will be populated here -->
+            </tbody>
+        </table>
+    </div>
+
+    <div id="overlay" class="overlay">
+        <div class="overlay-content">
+            <button class="close-button" onclick="closeOverlay()">×</button>
+            <h2>Details</h2>
+            <div class="details-text">
+                <p id="details-text"></p>
+                <div class="details-img-container">
+                    <img id="details-img" class="details-img" src="" alt="Attachment" style="display: none;">
+                </div>
+            </div>
+            <a id="download-button" class="download-button" href="" download style="display: none;">Download Attachment</a>
+        </div>
+    </div>
+
+    <div id="form-overlay" class="overlay">
+        <div class="overlay-content">
+            <button class="close-button" onclick="closeFormOverlay()">×</button>
+            <h2>Add New</h2>
+            <div class="form-content">
+                <form id="add-form" enctype="multipart/form-data">
+                    <div class="form-row">
+                        <div class="custom-field">
+                            <input type="text" id="requestNumber" name="requestNumber" placeholder="Request Number" readonly>
+                        </div>
+                        <div class="custom-field">
+                            <input type="date" id="entryDate" name="entryDate" readonly>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="custom-field">
+                            <select id="projectName" name="projectName" style="width: 100%;" required>
+                                <option value="" disabled selected>Select Project Name & Number</option>
+                                <option value="project1">Project 1 - 12345</option>
+                                <option value="project2">Project 2 - 67890</option>
+                                <option value="project3">Project 3 - 54321</option>
+                                <option value="project4">Project 4 - 09876</option>
+                            </select>
+                        </div>
+                        <div class="custom-field">
+                            <input type="text" id="projectType" name="projectType" placeholder="Project Type" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="custom-field">
+                            <select id="category" name="category" required>
+                                <option value="" disabled selected>Select Category</option>
+                                <option value="fuel">Fuel</option>
+                                <option value="project materials">Project Materials</option>
+                                <option value="project payments">Project Payments</option>
+                                <option value="others">Others</option>
+                            </select>
+                        </div>
+                        <div class="custom-field">
+                            <input type="number" id="amount" name="amount" placeholder="Amount" required>
+                        </div>
+                    </div>
+                    <div class="custom-field">
+                        <textarea id="details" name="details" placeholder="Details"></textarea>
+                    </div>
+                    <div class="custom-field">
+                        <input type="file" id="attachment" name="attachment" accept="image/jpeg, image/jpg, image/png">
+                        <label for="attachment">+ Add attachment</label>
+                        <span id="file-name" class="file-name">No file attached</span>
+                        <span id="remove-file" class="remove-file">x</span>
+                    </div>
+                    <button type="submit">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Select2 for the project name dropdown
+            $('#projectName').select2({
+                placeholder: 'Select Project Name & Number',
+                allowClear: true
+            });
+
+            // Auto fill the request number and date
+            document.getElementById('requestNumber').value = "REQ-" + Math.floor(Math.random() * 1000000); // Example request number, replace with actual data
+            document.getElementById('entryDate').value = new Date().toISOString().split('T')[0];
+
+            fetch('/data')
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.getElementById('data-table').getElementsByTagName('tbody')[0];
+                    data.forEach((item, index) => {
+                        const formattedDate = item.entryDate.split('-').reverse().join('/'); // Format the date
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td class="centered">${formattedDate}</td>
+                            <td class="centered">${item.requestNumber}</td>
+                            <td class="centered">${item.projectName}</td>
+                            <td class="centered">${item.projectType}</td>
+                            <td class="centered">${item.category}</td>
+                            <td class="centered">${item.amount}</td>
+                            <td class="centered"><button class="details-button" onclick="showDetails('${item.details}', '${item.attachment}')"><i class="fas fa-eye"></i></button></td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                })
+                .catch(error => console.error('Error fetching data:', error));
+
+            // Handle form submission
+            document.getElementById('add-form').addEventListener('submit', function(event) {
+                event.preventDefault();
+                const formData = new FormData(event.target);
+                fetch('/submit', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.text())
+                .then(() => {
+                    closeFormOverlay();
+                    location.reload(); // Reload the page to show the new data
+                })
+                .catch(error => console.error('Error submitting form:', error));
+            });
+
+            // Prevent the 'amount' field from accepting letters
+            document.getElementById('amount').addEventListener('keypress', function(e) {
+                if (e.key === 'e' || e.key === 'E') {
+                    e.preventDefault();
+                }
+            });
+
+            // Change color of select category field on selection
+            $('#category').on('change', function() {
+                if ($(this).val()) {
+                    $(this).css('color', 'black');
+                } else {
+                    $(this).css('color', '#6c757d');
+                }
+            });
+
+            // Change color of select2 field on selection
+            $('#projectName').on('select2:select', function(e) {
+                $(this).next('.select2-container').find('.select2-selection__rendered').css('color', 'black');
+            });
+
+            // Display selected file name
+            $('#attachment').on('change', function() {
+                const fileName = $(this).val().split('\\').pop();
+                $('#file-name').text(fileName || 'No file attached');
+                $('#remove-file').css('display', fileName ? 'inline' : 'none');
+            });
+
+            // Remove attached file
+            $('#remove-file').on('click', function() {
+                $('#attachment').val('');
+                $('#file-name').text('No file attached');
+                $(this).css('display', 'none');
+            });
+        });
+
+        function showDetails(details, attachment) {
+            document.getElementById('details-text').innerText = details;
+            const detailsImg = document.getElementById('details-img');
+            const downloadButton = document.getElementById('download-button');
+            if (attachment) {
+                const filePath = `/uploads/${attachment}`;
+                detailsImg.src = filePath;
+                detailsImg.style.display = 'block';
+                downloadButton.href = filePath;
+                downloadButton.style.display = 'inline-block';
+            } else {
+                detailsImg.style.display = 'none';
+                downloadButton.style.display = 'none';
+            }
+            document.getElementById('overlay').style.display = 'flex';
+        }
+
+        function closeOverlay() {
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        function showFormOverlay() {
+            document.getElementById('form-overlay').style.display = 'flex';
+        }
+
+        function closeFormOverlay() {
+            document.getElementById('form-overlay').style.display = 'none';
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            sidebar.classList.toggle('collapsed');
+            sidebar.classList.toggle('expanded');
+            const texts = document.querySelectorAll('.menu-text, .dropdown-arrow, .toggle-label');
+            if (sidebar.classList.contains('expanded')) {
+                texts.forEach(text => {
+                    text.style.opacity = '1';
+                });
+            } else {
+                texts.forEach(text => {
+                    text.style.opacity = '0';
+                });
+            }
+            adjustMainContentWidth();
+        }
+
+        function toggleDropdown(event) {
+            event.preventDefault();
+            const parent = event.target.closest('a');
+            const dropdownMenu = parent.nextElementSibling;
+            const dropdownArrow = parent.querySelector('.dropdown-arrow');
+            if (dropdownMenu && !document.querySelector('.sidebar').classList.contains('collapsed')) {
+                dropdownMenu.classList.toggle('show');
+                if (dropdownArrow) {
+                    dropdownArrow.classList.toggle('fa-chevron-down');
+                    dropdownArrow.classList.toggle('fa-chevron-up');
+                }
+            }
+        }
+
+        function adjustMainContentWidth() {
+            const sidebarWidth = document.querySelector('.sidebar').width;
+            document.querySelector('.main-content').style.marginLeft = `${sidebarWidth}px`;
+        }
+
+        window.addEventListener('resize', adjustMainContentWidth);
+        document.addEventListener('DOMContentLoaded', adjustMainContentWidth);
+
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+        darkModeToggle.addEventListener('change', () => {
+            document.body.classList.toggle('dark-mode', darkModeToggle.checked);
+            document.body.classList.toggle('light-mode', !darkModeToggle.checked);
+        });
+    </script>
+</body>
+</html>
