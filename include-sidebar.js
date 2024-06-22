@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             text.style.opacity = '0';
                         });
                     }
+                    adjustMainContentWidth();
                 }
 
                 function toggleDropdown(event) {
@@ -38,6 +39,14 @@ document.addEventListener('DOMContentLoaded', function () {
                         }
                     }
                 }
+
+                function adjustMainContentWidth() {
+                    const sidebarWidth = document.querySelector('.sidebar').offsetWidth;
+                    document.querySelector('.main-content').style.marginLeft = \`\${sidebarWidth}px\`;
+                }
+
+                window.addEventListener('resize', adjustMainContentWidth);
+                document.addEventListener('DOMContentLoaded', adjustMainContentWidth);
 
                 const darkModeToggle = document.getElementById('dark-mode-toggle');
                 darkModeToggle.addEventListener('change', () => {
