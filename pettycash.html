@@ -22,6 +22,8 @@
             flex: 1;
             padding: 20px;
             overflow: auto;
+            transition: margin-left 0.3s;
+            margin-left: 60px; /* Adjust based on sidebar default width */
         }
         h1 {
             text-align: left;
@@ -557,6 +559,7 @@
                                     text.style.opacity = '0';
                                 });
                             }
+                            adjustMainContentWidth();
                         }
 
                         function toggleDropdown(event) {
@@ -572,6 +575,14 @@
                                 }
                             }
                         }
+
+                        function adjustMainContentWidth() {
+                            const sidebarWidth = document.querySelector('.sidebar').offsetWidth;
+                            document.querySelector('.main-content').style.marginLeft = `${sidebarWidth}px`;
+                        }
+
+                        window.addEventListener('resize', adjustMainContentWidth);
+                        document.addEventListener('DOMContentLoaded', adjustMainContentWidth);
 
                         const darkModeToggle = document.getElementById('dark-mode-toggle');
                         darkModeToggle.addEventListener('change', () => {
