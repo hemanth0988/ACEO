@@ -273,3 +273,325 @@
             margin-left: 10px;
             color: red;
             cursor: pointer;
+            font-size: 14px;
+        }
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .custom-field {
+            margin-bottom: 10px;
+        }
+        /* Custom scrollbar styles */
+        .form-content::-webkit-scrollbar {
+            width: 4px;
+        }
+        .form-content::-webkit-scrollbar-thumb {
+            background-color: grey;
+            border-radius: 10px;
+        }
+        .form-content::-webkit-scrollbar-track {
+            background-color: #f9f9f9;
+        }
+        /* Specific style to change the default color of the select category */
+        #category {
+            color: #6c757d; /* Default grey color */
+        }
+        #category option {
+            color: black; /* Change to black on selection */
+        }
+        .dropdown-menu {
+            display: none;
+            flex-direction: column;
+            padding-left: 30px;
+        }
+        .dropdown-menu a {
+            padding: 5px 0;
+        }
+        .show {
+            display: flex;
+        }
+        .dropdown-arrow {
+            position: absolute;
+            right: 10px; /* Adjust this value to move the arrow further to the right */
+        }
+    </style>
+</head>
+<body>
+    <div id="sidebar"></div>
+
+    <div class="main-content">
+        <h1>Petty Cash List</h1>
+        <button class="add-new" onclick="showFormOverlay()">+ Add New</button>
+        <table id="data-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Req. no.</th>
+                    <th>Project name & no.</th>
+                    <th>Project Type</th>
+                    <th>Category</th>
+                    <th>Amount</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data will be populated here -->
+            </tbody>
+        </table>
+    </div>
+
+    <div id="overlay" class="overlay">
+        <div class="overlay-content">
+            <button class="close-button" onclick="closeOverlay()">×</button>
+            <h2>Details</h2>
+            <div class="details-text">
+                <p id="details-text"></p>
+                <div class="details-img-container">
+                    <img id="details-img" class="details-img" src="" alt="Attachment" style="display: none;">
+                </div>
+            </div>
+            <a id="download-button" class="download-button" href="" download style="display: none;">Download Attachment</a>
+        </div>
+    </div>
+
+    <div id="form-overlay" class="overlay">
+        <div class="overlay-content">
+            <button class="close-button" onclick="closeFormOverlay()">×</button>
+            <h2>Add New</h2>
+            <div class="form-content">
+                <form id="add-form" enctype="multipart/form-data">
+                    <div class="form-row">
+                        <div class="custom-field">
+                            <input type="text" id="requestNumber" name="requestNumber" placeholder="Request Number" readonly>
+                        </div>
+                        <div class="custom-field">
+                            <input type="date" id="entryDate" name="entryDate" readonly>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="custom-field">
+                            <select id="projectName" name="projectName" style="width: 100%;" required>
+                                <option value="" disabled selected>Select Project Name & Number</option>
+                                <option value="project1">Project 1 - 12345</option>
+                                <option value="project2">Project 2 - 67890</option>
+                                <option value="project3">Project 3 - 54321</option>
+                                <option value="project4">Project 4 - 09876</option>
+                            </select>
+                        </div>
+                        <div class="custom-field">
+                            <input type="text" id="projectType" name="projectType" placeholder="Project Type" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="custom-field">
+                            <select id="category" name="category" required>
+                                <option value="" disabled selected>Select Category</option>
+                                <option value="fuel">Fuel</option>
+                                <option value="project materials">Project Materials</option>
+                                <option value="project payments">Project Payments</option>
+                                <option value="others">Others</option>
+                            </select>
+                        </div>
+                        <div class="custom-field">
+                            <input type="number" id="amount" name="amount" placeholder="Amount" required>
+                        </div>
+                    </div>
+                    <div class="custom-field">
+                        <textarea id="details" name="details" placeholder="Details"></textarea>
+                    </div>
+                    <div class="custom-field">
+                        <input type="file" id="attachment" name="attachment" accept="image/jpeg, image/jpg, image/png">
+                        <label for="attachment">+ Add attachment</label>
+                        <span id="file-name" class="file-name">No file attached</span>
+                        <span id="remove-file" class="remove-file">x</span>
+                    </div>
+                    <button type="submit">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const sidebarContainer = document.getElementById('sidebar');
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', 'sidebar.html', true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    sidebarContainer.innerHTML = xhr.responseText;
+
+                    // Add the script from the sidebar.html content
+                    const script = document.createElement('script');
+                    script.innerHTML = `
+                        function toggleSidebar() {
+                            const sidebar = document.querySelector('.sidebar');
+                            sidebar.classList.toggle('collapsed');
+                            sidebar.classList.toggle('expanded');
+                            const texts = document.querySelectorAll('.menu-text, .dropdown-arrow, .toggle-label');
+                            if (sidebar.classList.contains('expanded')) {
+                                texts.forEach(text => {
+                                    text.style.opacity = '1';
+                                });
+                            } else {
+                                texts.forEach(text => {
+                                    text.style.opacity = '0';
+                                });
+                            }
+                            adjustMainContentWidth();
+                        }
+
+                        function toggleDropdown(event) {
+                            event.preventDefault();
+                            const parent = event.target.closest('a');
+                            const dropdownMenu = parent.nextElementSibling;
+                            const dropdownArrow = parent.querySelector('.dropdown-arrow');
+                            if (dropdownMenu && !document.querySelector('.sidebar').classList.contains('collapsed')) {
+                                dropdownMenu.classList.toggle('show');
+                                if (dropdownArrow) {
+                                    dropdownArrow.classList.toggle('fa-chevron-down');
+                                    dropdownArrow.classList.toggle('fa-chevron-up');
+                                }
+                            }
+                        }
+
+                        function adjustMainContentWidth() {
+                            const sidebarWidth = document.querySelector('.sidebar').offsetWidth;
+                            document.querySelector('.main-content').style.marginLeft = \`\${sidebarWidth}px\`;
+                        }
+
+                        window.addEventListener('resize', adjustMainContentWidth);
+                        document.addEventListener('DOMContentLoaded', adjustMainContentWidth);
+
+                        const darkModeToggle = document.getElementById('dark-mode-toggle');
+                        darkModeToggle.addEventListener('change', () => {
+                            document.body.classList.toggle('dark-mode', darkModeToggle.checked);
+                            document.body.classList.toggle('light-mode', !darkModeToggle.checked);
+                        });
+                    `;
+                    document.body.appendChild(script);
+                }
+            };
+            xhr.send();
+
+            // Initialize Select2 for the project name dropdown
+            $('#projectName').select2({
+                placeholder: 'Select Project Name & Number',
+                allowClear: true
+            });
+
+            // Auto fill the request number and date
+            document.getElementById('requestNumber').value = "REQ-" + Math.floor(Math.random() * 1000000); // Example request number, replace with actual data
+            document.getElementById('entryDate').value = new Date().toISOString().split('T')[0];
+
+            fetch('/data')
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.getElementById('data-table').getElementsByTagName('tbody')[0];
+                    data.forEach((item, index) => {
+                        const formattedDate = item.entryDate.split('-').reverse().join('/'); // Format the date
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td class="centered">\${formattedDate}</td>
+                            <td class="centered">\${item.requestNumber}</td>
+                            <td class="centered">\${item.projectName}</td>
+                            <td class="centered">\${item.projectType}</td>
+                            <td class="centered">\${item.category}</td>
+                            <td class="centered">\${item.amount}</td>
+                            <td class="centered"><button class="details-button" onclick="showDetails('\${item.details}', '\${item.attachment}')"><i class="fas fa-eye"></i></button></td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                })
+                .catch(error => console.error('Error fetching data:', error));
+
+            // Handle form submission
+            document.getElementById('add-form').addEventListener('submit', function(event) {
+                event.preventDefault();
+                const formData = new FormData(event.target);
+                fetch('/submit', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.text())
+                .then(() => {
+                    closeFormOverlay();
+                    location.reload(); // Reload the page to show the new data
+                })
+                .catch(error => console.error('Error submitting form:', error));
+            });
+
+            // Prevent the 'amount' field from accepting letters
+            document.getElementById('amount').addEventListener('keypress', function(e) {
+                if (e.key === 'e' || e.key === 'E') {
+                    e.preventDefault();
+                }
+            });
+
+            // Change color of select category field on selection
+            $('#category').on('change', function() {
+                if ($(this).val()) {
+                    $(this).css('color', 'black');
+                } else {
+                    $(this).css('color', '#6c757d');
+                }
+            });
+
+            // Change color of select2 field on selection
+            $('#projectName').on('select2:select', function(e) {
+                $(this).next('.select2-container').find('.select2-selection__rendered').css('color', 'black');
+            });
+
+            // Display selected file name
+            $('#attachment').on('change', function() {
+                const fileName = $(this).val().split('\\').pop();
+                $('#file-name').text(fileName || 'No file attached');
+                $('#remove-file').css('display', fileName ? 'inline' : 'none');
+            });
+
+            // Remove attached file
+            $('#remove-file').on('click', function() {
+                $('#attachment').val('');
+                $('#file-name').text('No file attached');
+                $(this).css('display', 'none');
+            });
+        });
+
+        function showDetails(details, attachment) {
+            document.getElementById('details-text').innerText = details;
+            const detailsImg = document.getElementById('details-img');
+            const downloadButton = document.getElementById('download-button');
+            if (attachment) {
+                const filePath = \`/uploads/\${attachment}\`;
+                detailsImg.src = filePath;
+                detailsImg.style.display = 'block';
+                downloadButton.href = filePath;
+                downloadButton.style.display = 'inline-block';
+            } else {
+                detailsImg.style.display = 'none';
+                downloadButton.style.display = 'none';
+            }
+            document.getElementById('overlay').style.display = 'flex';
+        }
+
+        function closeOverlay() {
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        function showFormOverlay() {
+            document.getElementById('form-overlay').style.display = 'flex';
+        }
+
+        function closeFormOverlay() {
+            document.getElementById('form-overlay').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
